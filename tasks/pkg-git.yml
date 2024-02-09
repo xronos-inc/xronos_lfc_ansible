@@ -1,0 +1,7 @@
+---
+- name: Install git
+  ansible.builtin.apt:
+    pkg:
+      - git
+    state: latest
+  become: true

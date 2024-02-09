@@ -1,0 +1,56 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600 # 1 hr
+  become: true
+
+- name: Install package management prerequisites
+  ansible.builtin.apt:
+    pkg:
+      - ca-certificates
+      - apt-transport-https
+      - gpg
+      - gpg-agent
+      - dirmngr
+      - lsb-release
+      - curl
+    state: latest
+  become: true
+
+- name: Import tasks pkg-gcc.yml
+  ansible.builtin.import_tasks: pkg-gcc.yml
+
+- name: Import tasks pkg-python.yml
+  ansible.builtin.import_tasks: pkg-python.yml
+
+- name: Import tasks pkg-git.yml
+  ansible.builtin.import_tasks: pkg-git.yml
+
+- name: Import tasks pkg-rti.yml
+  ansible.builtin.import_tasks: pkg-rti.yml
+  when: lfc_install_rti
+
+- name: Import tasks pkg-oracle-java
+  ansible.builtin.import_tasks: pkg-oracle-java.yml
+  when: 
+    - lfc_jdk_use_oracle
+    - ansible_architecture != "armv7l"
+    - ansible_architecture != "riscv64"
+
+- name: Import tasks pkg-openjdk-java
+  ansible.builtin.import_tasks: pkg-openjdk-java.yml
+  when: not lfc_jdk_use_oracle
+    or ansible_architecture == "armv7l"
+    or ansible_architecture == "riscv64"
+
+- name: Import tasks pkg-lfc.yml
+  ansible.builtin.import_tasks: pkg-lfc.yml
+
+- name: Import tasks pkg-rust.yml
+  ansible.builtin.import_tasks: pkg-rust.yml
+  when: lfc_install_rust
+
+- name: Import tasks pkg-lingo.yml
+  ansible.builtin.import_tasks: pkg-lingo.yml
+  when: lfc_install_lingo

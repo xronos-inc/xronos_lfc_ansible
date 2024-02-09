@@ -1,0 +1,51 @@
+---
+- name: Install pkg-config
+  ansible.builtin.apt:
+    pkg: pkg-config
+    state: latest
+  become: true
+
+# required by community.general.github_release
+- name: Install github3.py
+  ansible.builtin.pip:
+    name: github3.py
+    state: latest
+    #extra_args: --user
+  environment:
+    # github3.py may invoke rust compiler
+    PATH: "{{ ansible_env.HOME }}/.cargo/bin:{{ ansible_env.PATH }}"
+    # CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
+
+- name: Git query latest lingo release
+  community.general.github_release:
+    user: lf-lang
+    repo: lingo
+    action: latest_release
+  register: lingo_release
+
+- name: Create cache folder /var/cache/lf-lang
+  ansible.builtin.file:
+    path: /var/cache/lf-lang
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "777"
+
+- name: Git clone lf-lang/lingo tag {{ lingo_release.tag }}
+  ansible.builtin.git:
+    repo: "https://github.com/lf-lang/lingo"
+    dest: /var/cache/lf-lang/lingo
+    version: "{{ lingo_release.tag }}"
+    single_branch: true
+    force: true
+
+# required in case cargo is installed in a user path
+# that ansible doesn't include in its search path
+- name: Set default rust version to stable
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/rustup default stable"
+  changed_when: false
+
+- name: Install lingo
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/cargo install --path /var/cache/lf-lang/lingo"
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/lingo"

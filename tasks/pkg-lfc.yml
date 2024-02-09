@@ -1,0 +1,18 @@
+---
+- name: Download lingua franca install script
+  ansible.builtin.get_url:
+    url: https://install.lf-lang.org
+    dest: /tmp/install-lf-lang.sh
+    mode: +x
+
+- name: Install lingua franca
+  ansible.builtin.command:
+    cmd: bash /tmp/install-lf-lang.sh cli
+    creates: "{{ ansible_env.HOME }}/.local/bin/lfc"
+  register: lfc_install
+  failed_when: lfc_install.rc != 0
+
+- name: Add .local/bin to path
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: "export PATH=$PATH:{{ ansible_env.HOME }}/.local/bin"

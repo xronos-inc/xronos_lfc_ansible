@@ -1,0 +1,57 @@
+---
+- name: Install libssl-dev
+  ansible.builtin.apt:
+    pkg: libssl-dev
+    state: latest
+  become: true
+
+- name: Create cache folder /var/cache/lf-lang
+  ansible.builtin.file:
+    path: /var/cache/lf-lang
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "777"
+  become: true
+
+- name: Git clone lf-lang/reactor-c
+  ansible.builtin.git:
+    repo: "https://github.com/lf-lang/reactor-c"
+    dest: /var/cache/lf-lang/reactor-c
+    single_branch: true
+    version: main
+    depth: 1
+    force: true
+  become: true
+
+- name: Create build folder
+  ansible.builtin.file:
+    path: /var/cache/lf-lang/reactor-c/core/federated/RTI/build
+    state: directory
+    mode: "666"
+  become: true
+
+- name: Run cmake
+  ansible.builtin.command:
+    cmd: cmake -DAUTH=ON ..
+    creates: /var/cache/lf-lang/reactor-c/core/federated/RTI/build/Makefile
+  args:
+    chdir: /var/cache/lf-lang/reactor-c/core/federated/RTI/build
+  become: true
+
+- name: Run make
+  community.general.make:
+    chdir: /var/cache/lf-lang/reactor-c/core/federated/RTI/build
+  become: true
+
+- name: Run make install
+  community.general.make:
+    chdir: /var/cache/lf-lang/reactor-c/core/federated/RTI/build
+    target: install
+  become: true
+
+- name: Verify RTI installation
+  ansible.builtin.command:
+    cmd: which RTI
+  changed_when: false
+  register: rti_installed
+  failed_when: rti_installed.rc != 0

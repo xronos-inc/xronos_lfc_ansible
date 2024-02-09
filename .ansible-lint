@@ -1,0 +1,4 @@
+skip_list:
+
+- '403' # suppress rule "package installs should not use latest"
+- '503' # suppress rule "tasks that run when changed should likely be handlers"

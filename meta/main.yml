@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: xronos_lfc_ansible
+  author: Xronos, Inc.
+  description: "Install Lingua Franca compiler and supported languages"
+  license: proprietary
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+  min_ansible_version: "2.15"
+
+collections:
+  - community.general
+  - ansible.utils
+  - ansible.posix

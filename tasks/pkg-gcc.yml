@@ -1,0 +1,9 @@
+---
+- name: Install gcc
+  ansible.builtin.apt:
+    pkg:
+      - build-essential
+      - gcc
+      - cmake
+    state: latest
+  become: true

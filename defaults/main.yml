@@ -1,0 +1,12 @@
+---
+# install rust compiler
+lfc_install_rust: true
+
+# install the latest RTI
+lfc_install_rti: true
+
+# use oracle JDK instead of openjdk when possible
+lfc_jdk_use_oracle: true
+
+# install lingo (requires rust)
+lfc_install_lingo: true

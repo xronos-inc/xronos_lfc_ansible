@@ -1,0 +1,34 @@
+---
+- name: Download rust installer
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/sh.rustup.rs
+    mode: +x
+
+- name: Install rust
+  ansible.builtin.command:
+    cmd: bash /tmp/sh.rustup.rs -y
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
+
+# some distributions result in ~/.cargo created as root; fix here
+- name: Set permissions on {{ ansible_env.HOME }}/.cargo
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.cargo"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  become: true
+
+# some distributions result in ~/.rustc created as root; fix here
+- name: Set permissions on {{ ansible_env.HOME }}/.rustc
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.rustc"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  become: true
+
+- name: Add .cargo/bin to path
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: "export PATH=$PATH:{{ ansible_env.HOME }}/.cargo/bin"

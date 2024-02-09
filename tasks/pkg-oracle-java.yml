@@ -1,0 +1,36 @@
+---
+- name: Create directory /etc/apt/keyrings
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "644"
+  become: true
+
+- name: Add apt key
+  ansible.builtin.apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: EA8CACC073C3DB2A
+  become: true
+
+- name: Run apt-add-repository ppa:linuxuprising/java
+  ansible.builtin.apt_repository:
+    repo: "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu {{ ansible_facts['distribution_release'] }} main"
+    state: present
+    update_cache: true
+  become: true
+
+- name: Run deb set selection to accept oracle java license
+  ansible.builtin.debconf:
+    name: oracle-java17-installer
+    question: shared/accepted-oracle-license-v1-3
+    value: "true"
+    vtype: select
+  become: true
+
+- name: Install oracle-java17-installer
+  ansible.builtin.apt:
+    pkg:
+      - oracle-java17-installer
+      - oracle-java17-set-default
+    state: latest
+  become: true
