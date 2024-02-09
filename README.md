@@ -1,8 +1,9 @@
-# lfc_ansible role
+# Provision a host with Lingua Franca role
 
 Provision a Lingua Franca development system with all supported target languages.
 
 Features
+
 - lfc compiler (user install)
 - lingo package manager (user install)
 - Oracle Java 17 or openjdk
@@ -12,12 +13,14 @@ Features
 - rust (user install)
 
 Platforms supported
+
 - linux/amd64
 - linux/arm64
 - linux/arm/v7 (armhf)
 - linux/riscv64
 
 ## Prerequisites
+
 - Ansible 2.15
 - Debian-based host accessible via SSH with apt-get and sudo available
 
@@ -42,6 +45,7 @@ ansible-galaxy install -r roles/requirements.yml
 ## Variables
 
 Defaults that may be overridden:
+
 ```yaml
 # install rust compiler
 lfc_install_rust: true
