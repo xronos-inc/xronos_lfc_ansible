@@ -1,15 +1,9 @@
 ---
-- name: Create directory /etc/apt/keyrings
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: "644"
-  become: true
-
 - name: Add apt key
   ansible.builtin.apt_key:
     keyserver: hkp://keyserver.ubuntu.com:80
     id: EA8CACC073C3DB2A
+    keyring: /etc/apt/trusted.gpg.d/oracle-java.gpg
   become: true
 
 - name: Run apt-add-repository ppa:linuxuprising/java
