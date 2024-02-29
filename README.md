@@ -5,7 +5,6 @@ Provision a Lingua Franca development system with all supported target languages
 Features
 
 - lfc compiler (user install)
-- lingo package manager (user install)
 - Oracle Java 17 or openjdk
 - LF C RTI
 - gcc, g++ and cmake
@@ -24,22 +23,16 @@ Platforms supported
 - Ansible 2.15
 - Debian-based host accessible via SSH with apt-get and sudo available
 
-## Install Ansible prerequisites
-
-```shell
-ansible-galaxy install -r roles/requirements.yml
-```
-
 ## Example playbook
 
 ```yaml
 ---
-- name: Install LF development tools
+- name: Install Lingua Franca development tools
   hosts: myhosts
   gather_facts: true
   roles:
-    - name: lfc_ansible
-      role: lfc_ansible
+    - name: xronos_lfc_ansible
+      role: xronos_lfc_ansible
 ```
 
 ## Variables
@@ -55,7 +48,4 @@ lfc_install_rti: true
 
 # use oracle JDK instead of openjdk (when possible)
 lfc_jdk_use_oracle: true
-
-# install lingo (requires rust)
-lfc_install_lingo: true
 ```
