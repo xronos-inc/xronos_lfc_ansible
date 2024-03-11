@@ -2,7 +2,6 @@
 - name: Install libssl-dev
   ansible.builtin.apt:
     pkg: libssl-dev
-    state: latest
   become: true
 
 - name: Create cache folder /var/cache/lf-lang

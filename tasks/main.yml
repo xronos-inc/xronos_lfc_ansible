@@ -15,7 +15,6 @@
       - dirmngr
       - lsb-release
       - curl
-    state: latest
   become: true
 
 - name: Import tasks pkg-gcc.yml

@@ -1,5 +1,4 @@
 - name: Install openjdk-java-17
   ansible.builtin.apt:
     name: openjdk-17-jdk
-    state: latest
   become: true

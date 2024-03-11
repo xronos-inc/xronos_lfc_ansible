@@ -9,8 +9,6 @@
 - name: Run apt-add-repository ppa:linuxuprising/java
   ansible.builtin.apt_repository:
     repo: "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu {{ ansible_facts['distribution_release'] }} main"
-    state: present
-    update_cache: true
   become: true
 
 - name: Run deb set selection to accept oracle java license
@@ -26,5 +24,4 @@
     pkg:
       - oracle-java17-installer
       - oracle-java17-set-default
-    state: latest
   become: true
