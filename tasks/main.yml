@@ -40,8 +40,8 @@
   ansible.builtin.include_tasks:
     "{{ _use_oracle_jdk | ternary('pkg-oracle-java.yml', 'pkg-openjdk-java.yml') }}"
 
-- name: Import tasks pkg-lfc.yml
-  ansible.builtin.import_tasks: pkg-lfc.yml
+#- name: Import tasks pkg-lfc.yml
+#  ansible.builtin.import_tasks: pkg-lfc.yml
 
 #- name: Import tasks pkg-rust.yml
 #  ansible.builtin.import_tasks: pkg-rust.yml
