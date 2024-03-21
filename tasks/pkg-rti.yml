@@ -4,44 +4,40 @@
     pkg: libssl-dev
   become: true
 
-- name: Create cache folder /var/cache/lf-lang
+- name: Create cache folder {{ ansible_env.HOME}}/.cache/lf-lang
   ansible.builtin.file:
-    path: /var/cache/lf-lang
+    path: "{{ ansible_env.HOME}}/.cache"
     state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-  become: true
 
 - name: Git clone lf-lang/reactor-c
   ansible.builtin.git:
     repo: "https://github.com/lf-lang/reactor-c"
-    dest: /var/cache/lf-lang/reactor-c
+    dest: "{{ ansible_env.HOME}}/.cache/lf-lang/reactor-c"
     single_branch: true
     version: main
     depth: 1
 
 - name: Create build folder
   ansible.builtin.file:
-    path: /var/cache/lf-lang/build/RTI
+    path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
     recurse: true
     state: directory
 
 - name: Run cmake
   ansible.builtin.command:
-    cmd: cmake -DAUTH=ON /var/cache/lf-lang/reactor-c/core/federated/RTI
-    creates: /var/cache/lf-lang/build/RTI/Makefile
+    cmd: cmake -DAUTH=ON {{ ansible_env.HOME}}/.cache/lf-lang/reactor-c/core/federated/RTI
+    creates: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/Makefile"
   args:
-    chdir: /var/cache/lf-lang/build/RTI
+    chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
 
 - name: Stat build/RTI
   ansible.builtin.stat:
-    path: /var/cache/lf-lang/build/RTI/RTI
+    path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/RTI"
   register: rti_make_stat
 
 - name: Run make
   community.general.make:
-    chdir: /var/cache/lf-lang/build/RTI
+    chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
   when: not rti_make_stat.stat.exists
 
 - name: Stat /usr/local/bin/RTI
@@ -51,7 +47,7 @@
 
 - name: Run make install
   community.general.make:
-    chdir: /var/cache/lf-lang/build/RTI
+    chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
     target: install
   when: not rti_system_stat.stat.exists
   become: true
