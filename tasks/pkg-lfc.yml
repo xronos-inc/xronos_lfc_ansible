@@ -3,7 +3,8 @@
   ansible.builtin.get_url:
     url: https://install.lf-lang.org
     dest: /tmp/install-lf-lang.sh
-    mode: +x
+    mode: ug+x
+  become: true
 
 - name: Install lingua franca
   ansible.builtin.command:

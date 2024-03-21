@@ -3,7 +3,8 @@
   ansible.builtin.get_url:
     url: https://sh.rustup.rs
     dest: /tmp/sh.rustup.rs
-    mode: +x
+    mode: ug+x
+  become: true
 
 - name: Install rust
   ansible.builtin.command:
