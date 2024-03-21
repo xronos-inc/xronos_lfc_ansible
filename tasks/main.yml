@@ -43,6 +43,6 @@
 - name: Import tasks pkg-lfc.yml
   ansible.builtin.import_tasks: pkg-lfc.yml
 
-- name: Import tasks pkg-rust.yml
-  ansible.builtin.import_tasks: pkg-rust.yml
-  when: lfc_install_rust
+#- name: Import tasks pkg-rust.yml
+#  ansible.builtin.import_tasks: pkg-rust.yml
+#  when: lfc_install_rust
