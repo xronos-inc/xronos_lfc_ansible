@@ -1,9 +1,9 @@
 ---
-- name: Download lingua franca install script
-  ansible.builtin.get_url:
-    url: https://install.lf-lang.org
-    dest: /tmp/install-lf-lang.sh
-    mode: +x
+#- name: Download lingua franca install script
+#  ansible.builtin.get_url:
+#    url: https://install.lf-lang.org
+#    dest: /tmp/install-lf-lang.sh
+#    mode: +x
 
 - name: Install lingua franca
   ansible.builtin.command:
