@@ -1,14 +1,19 @@
 ---
+- name: Remove temporary files left by any previous install
+  ansible.builtin.file:
+    path: /tmp/lingua-franca
+    state: absent
+  become: true
+
 - name: Download lingua franca install script
   ansible.builtin.get_url:
     url: https://install.lf-lang.org
-    dest: /tmp/install-lf-lang.sh
+    dest: "{{ ansible_env.HOME }}/.cache/install-lf-lang.sh"
     mode: ug+x
-  become: true
 
 - name: Install lingua franca
   ansible.builtin.command:
-    cmd: bash /tmp/install-lf-lang.sh cli
+    cmd: bash {{ ansible_env.HOME }}/.cache/install-lf-lang.sh cli
     creates: "{{ ansible_env.HOME }}/.local/bin/lfc"
   register: lfc_install
   failed_when: lfc_install.rc != 0
@@ -17,3 +22,9 @@
   ansible.builtin.lineinfile:
     path: "{{ ansible_env.HOME }}/.bashrc"
     line: "export PATH=$PATH:{{ ansible_env.HOME }}/.local/bin"
+
+- name: Cleanup temporary files
+  ansible.builtin.file:
+    path: /tmp/lingua-franca
+    state: absent
+  become: true

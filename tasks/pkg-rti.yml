@@ -6,7 +6,7 @@
 
 - name: Create cache folder {{ ansible_env.HOME}}/.cache/lf-lang
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME}}/.cache"
+    path: "{{ ansible_env.HOME}}/.cache/lf-lang"
     state: directory
 
 - name: Git clone lf-lang/reactor-c

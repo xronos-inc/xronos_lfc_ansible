@@ -2,13 +2,12 @@
 - name: Download rust installer
   ansible.builtin.get_url:
     url: https://sh.rustup.rs
-    dest: /tmp/sh.rustup.rs
+    dest: "{{ ansible_env.HOME }}/.cache/sh.rustup.rs"
     mode: ug+x
-  become: true
 
 - name: Install rust
   ansible.builtin.command:
-    cmd: bash /tmp/sh.rustup.rs -y
+    cmd: bash {{ ansible_env.HOME }}/.cache/sh.rustup.rs -y
     creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
 
 # some distributions result in ~/.cargo created as root; fix here
