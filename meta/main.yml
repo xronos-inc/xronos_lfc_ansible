@@ -1,9 +1,11 @@
+# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-License-Identifier: BSD-3-Clause
 ---
 galaxy_info:
   role_name: xronos_lfc_ansible
-  author: Xronos, Inc.
+  company: Xronos Inc.
   description: "Install Lingua Franca compiler and supported languages"
-  license: proprietary
+  license: BSD-3-Clause
   platforms:
     - name: Ubuntu
       versions:

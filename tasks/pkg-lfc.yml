@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-License-Identifier: BSD-3-Clause
 ---
 - name: Remove temporary files left by any previous install
   ansible.builtin.file:
