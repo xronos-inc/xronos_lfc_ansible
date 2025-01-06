@@ -1,11 +1,12 @@
-# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 ---
-# install rust compiler
-lfc_install_rust: true
-
-# install the latest RTI
+# features
+lfc_install_cmake: true
 lfc_install_rti: true
 
-# use oracle JDK instead of openjdk when possible
-lfc_jdk_use_oracle: true
+# versions
+lfc_version:
+lfc_openjdk_17_jre_version:
+lfc_cmake_version:
+lfc_rti_commit: main

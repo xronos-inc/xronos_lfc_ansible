@@ -1,15 +1,17 @@
-# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 ---
 galaxy_info:
   role_name: xronos_lfc_ansible
   company: Xronos Inc.
-  description: "Install Lingua Franca compiler and supported languages"
+  author: Jeff C. Jensen
+  description: "Install Lingua Franca compiler."
   license: BSD-3-Clause
   platforms:
     - name: Ubuntu
       versions:
-        - all
+        - jammy
+        - noble
   min_ansible_version: "2.15"
 
 collections:

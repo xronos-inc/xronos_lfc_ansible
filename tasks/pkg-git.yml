@@ -1,8 +1,0 @@
-# SPDX-FileCopyrightText: © 2024 Xronos Inc.
-# SPDX-License-Identifier: BSD-3-Clause
----
-- name: Install git
-  ansible.builtin.apt:
-    pkg:
-      - git
-  become: true

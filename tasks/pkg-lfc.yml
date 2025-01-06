@@ -1,20 +1,34 @@
-# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 ---
-- name: Download lingua franca install script
+- name: Add .local/bin to path in .bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: "export PATH=$PATH:{{ ansible_env.HOME }}/.local/bin"
+
+- name: Query lfc version
+  register: _lfc_version_query
+  changed_when: false
+  failed_when: false
+  ansible.builtin.command:
+    cmd: bash -l -c "lfc --version"
+
+- name: Download lfc install script
   ansible.builtin.get_url:
     url: https://install.lf-lang.org
     dest: "{{ ansible_env.HOME }}/.cache/install-lf-lang.sh"
     mode: ug+x
 
-- name: Install lingua franca
+- name: Install lfc {{ lfc_version }}
+  when: _lfc_version_query.rc != 0
+        or lfc_version not in _lfc_version_query.stdout
   ansible.builtin.command:
-    cmd: bash {{ ansible_env.HOME }}/.cache/install-lf-lang.sh cli
-    creates: "{{ ansible_env.HOME }}/.local/bin/lfc"
-  register: lfc_install
-  failed_when: lfc_install.rc != 0
+    cmd: >-
+      bash {{ ansible_env.HOME }}/.cache/install-lf-lang.sh cli {{ lfc_version }} --temporary={{ ansible_env.HOME }}/.cache/
 
-- name: Add .local/bin to path
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
-    line: "export PATH=$PATH:{{ ansible_env.HOME }}/.local/bin"
+- name: Verify lfc version {{ lfc_version }}
+  register: _lfc_version_query
+  failed_when: lfc_version and lfc_version not in _lfc_version_query.stdout
+  changed_when: false
+  ansible.builtin.command:
+    cmd: bash -l -c "lfc --version"

@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
+# SPDX-License-Identifier: BSD-3-Clause
+---
+- name: Install openjre-java-17 {{ lfc_openjdk_17_jre_version if lfc_openjdk_17_jre_version else '' }}
+  become: true
+  ansible.builtin.apt:
+    name: openjdk-17-jre{{ '=' ~ lfc_openjdk_17_jre_version if lfc_openjdk_17_jre_version else '' }}

@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
+# SPDX-License-Identifier: BSD-3-Clause
+---
+- name: Download kitware signing key
+  become: true
+  ansible.builtin.get_url:
+    url: https://apt.kitware.com/keys/kitware-archive-latest.asc
+    dest: /etc/apt/trusted.gpg.d/kitware-archive-latest.asc
+    mode: 0644
+
+- name: Apt add kitware repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/trusted.gpg.d/kitware-archive-latest.asc] https://apt.kitware.com/ubuntu/ {{ ansible_distribution_release }} main"
+    filename: kitware-archive-latest
+    update_cache: true
+
+- name: Apt install cmake {{ lfc_cmake_version if lfc_cmake_version else '' }}
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - cmake{{ '=' ~ lfc_cmake_version if lfc_cmake_version else '' }}
+      - cmake-data{{ '=' ~ lfc_cmake_version if lfc_cmake_version else '' }}

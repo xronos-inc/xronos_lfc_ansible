@@ -1,13 +1,14 @@
-# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 ---
 - name: Update apt cache
+  become: true
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600 # 1 hr
-  become: true
 
 - name: Install package management prerequisites
+  become: true
   ansible.builtin.apt:
     pkg:
       - ca-certificates
@@ -17,34 +18,17 @@
       - dirmngr
       - lsb-release
       - curl
-  become: true
 
-- name: Import tasks pkg-gcc.yml
-  ansible.builtin.import_tasks: pkg-gcc.yml
-
-- name: Import tasks pkg-python.yml
-  ansible.builtin.import_tasks: pkg-python.yml
-
-- name: Import tasks pkg-git.yml
-  ansible.builtin.import_tasks: pkg-git.yml
+- name: Install cmake
+  when: lfc_install_cmake
+  ansible.builtin.include_tasks: pkg-cmake.yml
 
 - name: Import tasks pkg-rti.yml
-  ansible.builtin.import_tasks: pkg-rti.yml
   when: lfc_install_rti
-
-- name: Set fact _use_oracle_jdk
-  ansible.builtin.set_fact:
-    _use_oracle_jdk: "{{ lfc_jdk_use_oracle
-      and ansible_architecture != 'armv7l'
-      and ansible_architecture != 'riscv64' }}"
+  ansible.builtin.include_tasks: pkg-rti.yml
 
 - name: Import java install tasks
-  ansible.builtin.include_tasks:
-    "{{ _use_oracle_jdk | ternary('pkg-oracle-java.yml', 'pkg-openjdk-java.yml') }}"
+  ansible.builtin.import_tasks: pkg-openjre-java.yml
 
 - name: Import tasks pkg-lfc.yml
   ansible.builtin.import_tasks: pkg-lfc.yml
-
-- name: Import tasks pkg-rust.yml
-  ansible.builtin.import_tasks: pkg-rust.yml
-  when: lfc_install_rust

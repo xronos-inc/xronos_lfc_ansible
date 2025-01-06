@@ -1,24 +1,31 @@
 
-# SPDX-FileCopyrightText: © 2024 Xronos Inc.
+# SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 ---
+- name: Query RTI installation
+  register: _rti_installed
+  changed_when: false
+  failed_when: false
+  ansible.builtin.command:
+    cmd: which RTI
+
 - name: Install libssl-dev
+  become: true
   ansible.builtin.apt:
     pkg: libssl-dev
-  become: true
 
 - name: Create cache folder {{ ansible_env.HOME}}/.cache/lf-lang
   ansible.builtin.file:
     path: "{{ ansible_env.HOME}}/.cache/lf-lang"
     state: directory
 
-- name: Git clone lf-lang/reactor-c
+- name: Git clone lf-lang/reactor-c {{ lfc_rti_commit }}
+  register: _rti_repo
   ansible.builtin.git:
     repo: "https://github.com/lf-lang/reactor-c"
     dest: "{{ ansible_env.HOME}}/.cache/lf-lang/reactor-c"
-    single_branch: true
-    version: main
-    depth: 1
+    version: "{{ lfc_rti_commit }}"
+    force: true
 
 - name: Create build folder
   ansible.builtin.file:
@@ -26,38 +33,40 @@
     recurse: true
     state: directory
 
-- name: Run cmake
-  ansible.builtin.command:
-    cmd: cmake -DAUTH=ON {{ ansible_env.HOME}}/.cache/lf-lang/reactor-c/core/federated/RTI
-    creates: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/Makefile"
-  args:
-    chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
+- name: Stat existence of makefile
+  register: _makefile_query
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/Makefile"
 
-- name: Stat build/RTI
+- name: Stat existence of RTI build artifact
+  register: _rti_artifact_query
   ansible.builtin.stat:
     path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/RTI"
-  register: rti_make_stat
 
-- name: Run make
-  community.general.make:
-    chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
-  when: not rti_make_stat.stat.exists
+- name: Build RTI {{ lfc_rti_commit }}
+  when: _rti_installed.rc != 0
+        or _rti_repo.changed
+        or not _makefile_query.stat.exists
+        or not _rti_artifact_query.stat.exists
+  block:
+    - name: Cmake RTI
+      ansible.builtin.command:
+        chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
+        cmd: cmake -DAUTH=ON {{ ansible_env.HOME}}/.cache/lf-lang/reactor-c/core/federated/RTI
 
-- name: Stat /usr/local/bin/RTI
-  ansible.builtin.stat:
-    path: /usr/local/bin/RTI
-  register: rti_system_stat
+    - name: Run make
+      community.general.make:
+        chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
 
-- name: Run make install
-  community.general.make:
-    chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
-    target: install
-  when: not rti_system_stat.stat.exists
-  become: true
+    - name: Run make install
+      become: true
+      community.general.make:
+        chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
+        target: install
 
 - name: Verify RTI installation
+  register: _rti_installed
+  changed_when: false
+  failed_when: _rti_installed.rc != 0
   ansible.builtin.command:
     cmd: which RTI
-  changed_when: false
-  register: rti_installed
-  failed_when: rti_installed.rc != 0
