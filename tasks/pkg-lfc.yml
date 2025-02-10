@@ -13,22 +13,36 @@
   ansible.builtin.command:
     cmd: bash -l -c "lfc --version"
 
-- name: Download lfc install script
-  ansible.builtin.get_url:
-    url: https://install.lf-lang.org
-    dest: "{{ ansible_env.HOME }}/.cache/install-lf-lang.sh"
-    mode: ug+x
-
-- name: Install lfc {{ lfc_version }}
+- name: Install lfc
   when: _lfc_version_query.rc != 0
-        or lfc_version not in _lfc_version_query.stdout
-  ansible.builtin.command:
-    cmd: >-
-      bash {{ ansible_env.HOME }}/.cache/install-lf-lang.sh cli {{ lfc_version }} --temporary={{ ansible_env.HOME }}/.cache/
+            or lfc_version not in _lfc_version_query.stdout
+  block:
+    - name: Stat ~/.cache
+      register: _cache_folder_query
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/.cache"
 
-- name: Verify lfc version {{ lfc_version }}
-  register: _lfc_version_query
-  failed_when: lfc_version and lfc_version not in _lfc_version_query.stdout
-  changed_when: false
-  ansible.builtin.command:
-    cmd: bash -l -c "lfc --version"
+    - name: Create ~/.cache
+      when: not _cache_folder_query.stat.exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.cache"
+        state: directory
+        mode: u=rwx,g=,o=
+
+    - name: Download lfc install script
+      ansible.builtin.get_url:
+        url: https://install.lf-lang.org
+        dest: "{{ ansible_env.HOME }}/.cache/install-lf-lang.sh"
+        mode: ug+x
+
+    - name: Install lfc {{ lfc_version }}
+      ansible.builtin.command:
+        cmd: >-
+          bash {{ ansible_env.HOME }}/.cache/install-lf-lang.sh cli {{ lfc_version }} --temporary={{ ansible_env.HOME }}/.cache/
+
+    - name: Verify lfc version {{ lfc_version }}
+      register: _lfc_version_query
+      failed_when: lfc_version and lfc_version not in _lfc_version_query.stdout
+      changed_when: false
+      ansible.builtin.command:
+        cmd: bash -l -c "lfc --version"

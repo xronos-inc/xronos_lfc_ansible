@@ -2,22 +2,28 @@
 # SPDX-FileCopyrightText: (c) 2024 Xronos Inc.
 # SPDX-License-Identifier: BSD-3-Clause
 ---
-- name: Query RTI installation
-  register: _rti_installed
-  changed_when: false
-  failed_when: false
-  ansible.builtin.command:
-    cmd: which RTI
-
 - name: Install libssl-dev
   become: true
   ansible.builtin.apt:
     pkg: libssl-dev
 
+- name: Stat ~/.cache
+  register: _cache_folder_query
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.cache"
+
+- name: Create ~/.cache
+  when: not _cache_folder_query.stat.exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.cache"
+    state: directory
+    mode: u=rwx,g=,o=
+
 - name: Create cache folder {{ ansible_env.HOME}}/.cache/lf-lang
   ansible.builtin.file:
     path: "{{ ansible_env.HOME}}/.cache/lf-lang"
     state: directory
+    mode: u=rwx,g=,o=
 
 - name: Git clone lf-lang/reactor-c {{ lfc_rti_commit }}
   register: _rti_repo
@@ -27,28 +33,29 @@
     version: "{{ lfc_rti_commit }}"
     force: true
 
-- name: Create build folder
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
-    recurse: true
-    state: directory
-
-- name: Stat existence of makefile
-  register: _makefile_query
-  ansible.builtin.stat:
-    path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/Makefile"
+- name: Query RTI installation
+  register: _rti_installed
+  changed_when: false
+  failed_when: false
+  ansible.builtin.command:
+    cmd: which RTI
 
 - name: Stat existence of RTI build artifact
   register: _rti_artifact_query
   ansible.builtin.stat:
     path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI/RTI"
 
-- name: Build RTI {{ lfc_rti_commit }}
+- name: Install RTI {{ lfc_rti_commit }}
   when: _rti_installed.rc != 0
         or _rti_repo.changed
-        or not _makefile_query.stat.exists
         or not _rti_artifact_query.stat.exists
   block:
+    - name: Create build folder
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
+        recurse: true
+        state: directory
+
     - name: Cmake RTI
       ansible.builtin.command:
         chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
@@ -64,9 +71,9 @@
         chdir: "{{ ansible_env.HOME}}/.cache/lf-lang/build/RTI"
         target: install
 
-- name: Verify RTI installation
-  register: _rti_installed
-  changed_when: false
-  failed_when: _rti_installed.rc != 0
-  ansible.builtin.command:
-    cmd: which RTI
+    - name: Verify RTI installation
+      register: _rti_installed
+      changed_when: false
+      failed_when: _rti_installed.rc != 0
+      ansible.builtin.command:
+        cmd: which RTI
